@@ -9,7 +9,7 @@ folder_path = "data//no_defective"
 model = models.resnet101(pretrained=True)
 model.eval()
 
-# 对于无缺陷图像，采用中心裁切进行预处理
+
 preprocess = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),

@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 from torchvision import models
 from PIL import Image
 
-folder_path = "images//no_defective"
+folder_path = "data//no_defective"
 model = models.resnet101(pretrained=True)
 model.eval()
 
@@ -43,5 +43,3 @@ all_features = np.concatenate(features_list, axis=0)
 
 output_file_path = "resnet101//no_defective_features.npy"
 np.save(output_file_path, all_features)
-
-print("特征保存完成")

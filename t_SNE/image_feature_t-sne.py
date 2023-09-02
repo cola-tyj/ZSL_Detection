@@ -4,11 +4,16 @@ from sklearn.manifold import TSNE
 import os
 
 
-xiushi_features = np.load("resnet101//defective_features//xiushi.npy")
-kailie_features = np.load("resnet101//defective_features//kailie.npy")
-qipao_features = np.load("resnet101//defective_features//qipao.npy")
-tuoluo_features = np.load("resnet101//defective_features//tuoluo.npy")
-no_defective_features = np.load("resnet101//no_defective_features.npy")
+xiushi_features = np.load(
+    "/root/autodl-tmp/ZSL_Detection/classify/feature_512/xiushi_hidden_fc2.npy")
+kailie_features = np.load(
+    "/root/autodl-tmp/ZSL_Detection/classify/feature_512/kailie_hidden_fc2.npy")
+qipao_features = np.load(
+    "/root/autodl-tmp/ZSL_Detection/classify/feature_512/qipao_hidden_fc2.npy")
+tuoluo_features = np.load(
+    "/root/autodl-tmp/ZSL_Detection/classify/feature_512/tuoluo_hidden_fc2.npy")
+no_defective_features = np.load(
+    "/root/autodl-tmp/ZSL_Detection/classify/feature_512/no_defective_hidden_fc2.npy")
 
 
 all_features = np.concatenate([xiushi_features, kailie_features,
@@ -29,7 +34,8 @@ embedded_features = tsne.fit_transform(all_features)
 
 
 xiushi_embedded = embedded_features[:xiushi_features.shape[0]]
-kailie_embedded = embedded_features[xiushi_features.shape[0]:xiushi_features.shape[0] + kailie_features.shape[0]]
+kailie_embedded = embedded_features[xiushi_features.shape[0]
+    :xiushi_features.shape[0] + kailie_features.shape[0]]
 qipao_embedded = embedded_features[xiushi_features.shape[0] + kailie_features.shape[0]:
                                    xiushi_features.shape[0] + kailie_features.shape[0] + qipao_features.shape[0]]
 tuoluo_embedded = embedded_features[xiushi_features.shape[0] + kailie_features.shape[0] + qipao_features.shape[0]:
@@ -37,7 +43,7 @@ tuoluo_embedded = embedded_features[xiushi_features.shape[0] + kailie_features.s
 no_defective_embedded = embedded_features[-no_defective_features.shape[0]:]
 
 
-output_dir = "t_SNE//t-sne__result"
+output_dir = "/root/autodl-tmp/ZSL_Detection/t_SNE/t-sne__result/feature_512"
 os.makedirs(output_dir, exist_ok=True)
 
 

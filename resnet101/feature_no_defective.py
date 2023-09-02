@@ -5,41 +5,64 @@ import torchvision.transforms as transforms
 from torchvision import models
 from PIL import Image
 
-folder_path = "data//no_defective"
-model = models.resnet101(pretrained=True)
-model.eval()
+# Load pre-trained ResNet-101 model
+resnet = models.resnet101(pretrained=True)
 
+# Remove the final fully connected layer
+feature_extractor = torch.nn.Sequential(*list(resnet.children())[:-1])
 
-preprocess = transforms.Compose([
+# Set model to evaluation mode
+feature_extractor.eval()
+
+# Define image transforms
+transform = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225]),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
+# Load image folder
+folder_path = "/root/autodl-tmp/ZSL_Detection/data/no_defective"
+output_folder = "/root/autodl-tmp/ZSL_Detection/resnet101/no_defective_features"
 
-features_list = []
+def extract_features(image_path):
+    # Load image
+    img = Image.open(image_path).convert('RGB')
 
-for filename in os.listdir(folder_path):
-    if filename.endswith(".jpg") or filename.endswith(".png"):
-        image_path = os.path.join(folder_path, filename)
+    # Apply transforms to image
+    img_tensor = transform(img)
 
-        image = Image.open(image_path).convert("RGB")
-        image_tensor = preprocess(image)
-        image_tensor = torch.unsqueeze(image_tensor, 0)
+    # Add batch dimension to tensor
+    img_tensor = img_tensor.unsqueeze(0)
 
-        with torch.no_grad():
-            features = model(image_tensor)
+    # Pass image through ResNet-101 model
+    with torch.no_grad():
+        features = feature_extractor(img_tensor)
 
-        features_np = features.numpy()
-        features_list.append(features_np)
+    # Flatten the features into a 1D vector
+    feature_vector = torch.flatten(features, start_dim=1)
 
-        print(f"Processed image: {filename}")
+    return feature_vector.numpy()
 
+def main():
+    features_list = []
 
-all_features = np.concatenate(features_list, axis=0)
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".jpg") or filename.endswith(".png"):
+            image_path = os.path.join(folder_path, filename)
 
+            feature_vector = extract_features(image_path)
+            features_list.append(feature_vector)
 
-output_file_path = "resnet101//no_defective_features.npy"
-np.save(output_file_path, all_features)
+            print(f"Processed image: {filename}")
+
+    all_features = np.concatenate(features_list, axis=0)
+
+    output_file_path = os.path.join(output_folder, "no_defective_features.npy")
+    np.save(output_file_path, all_features)
+
+    print("Features for non-defective images have been saved.")
+
+if __name__ == "__main__":
+    main()
